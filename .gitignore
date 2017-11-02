@@ -1,0 +1,4 @@
+build/
+*~
+devel/
+src/ORB_SLAM2/

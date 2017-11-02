@@ -1,0 +1,3 @@
+<launch>
+  <node name="capture_data_bende" pkg="record_bags_bende" type="capture_data_bende" respawn="true"/>
+</launch>
