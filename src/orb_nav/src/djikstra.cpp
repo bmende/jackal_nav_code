@@ -4,99 +4,109 @@
 #include <algorithm>
 #include <iostream>
 
+#include "helpers.h"
+
 using namespace std;
+
+void print_pair(pair<double, double> p) {
+    cout << "(" << p.first << ", " << p.second << ")";
+}
+
+void print_vertices(vector< Pose > v) {
+    for (auto& n : v) {
+        cout << n << ", ";
+    }
+    cout << endl;
+}
 
 class Graph
 {
-    unordered_map<char, const unordered_map<char, int>> vertices;
+    vector< Pose > vertices, plan;
+    Pose start, goal;
     vector< vector<double> > adjacency_mat;
 
 public:
-    void add_vertex(char name, const unordered_map<char, int>& edges)
-    {
-        vertices.insert(unordered_map<char, const unordered_map<char, int>>::value_type(name, edges));
+    int size = 2;
+
+    Graph() {
+        set_start(0, 0);
+        set_goal(0, 0);
     }
 
-    vector<char> shortest_path(char start, char finish)
-    {
-        unordered_map<char, int> distances;
-        unordered_map<char, char> previous;
-        vector<char> nodes;
-        vector<char> path;
+    void set_start(double x, double y) {
+        start.x = x; start.y = y;
+    }
 
-        auto comparator = [&] (char left, char right) { return distances[left] > distances[right]; };
+    void set_goal(double x, double y) {
+        goal.x = x; goal.y = y;
+    }
 
-        for (auto& vertex : vertices)
-        {
-            if (vertex.first == start)
-            {
-                distances[vertex.first] = 0;
-            }
-            else
-            {
-                distances[vertex.first] = numeric_limits<int>::max();
-            }
+    void add_vertex(double x, double y) {
+        Pose new_vertex;
+        new_vertex.x = x; new_vertex.y = y;
+        vertices.push_back(new_vertex);
+        size++;
+    }
 
-            nodes.push_back(vertex.first);
+    double dist_i_j(int i, int j) {
+        if (adjacency_mat[i][j] > 0) {
+            return vertices[i].dist(vertices[j]);
+        } else {
+            return 0.0;
         }
+    }
 
-        make_heap(nodes.begin(), nodes.end(), comparator);
-
-        while (!nodes.empty())
-        {
-            pop_heap(begin(nodes), end(nodes), comparator);
-            char smallest = nodes.back();
-            nodes.pop_back();
-
-            if (smallest == finish)
-            {
-                while (previous.find(smallest) != end(previous))
-                {
-                    path.push_back(smallest);
-                    smallest = previous[smallest];
-                }
-
-                break;
-            }
-
-            if (distances[smallest] == numeric_limits<int>::max())
-            {
-                break;
-            }
-
-            for (auto& neighbor : vertices[smallest])
-            {
-                int alt = distances[smallest] + neighbor.second;
-                if (alt < distances[neighbor.first])
-                {
-                    distances[neighbor.first] = alt;
-                    previous[neighbor.first] = smallest;
-                    make_heap(begin(nodes), end(nodes), comparator);
-                }
+    void initialize_adj_mat(vector< vector<double> > a_m) {
+        for (int i = 0; i < size; i++) {
+            adjacency_mat.push_back(vector<double>(size));
+            if (i >= size - 2) continue;
+            for (int j = 0; j < size - 2; j++) {
+                adjacency_mat[i][j] = a_m[i][j];
             }
         }
+    }
 
-        return path;
+    void print_adj_mat() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cout << adjacency_mat[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+
+    void print_graph() {
+        cout << "size: " << size << endl;
+        cout << "start: " << start << endl;
+        cout << "goal: "  << goal  << endl;
+        print_vertices(vertices); cout << endl;
+        print_adj_mat(); cout << endl;
     }
 };
 
 int main()
 {
     Graph g;
-    g.add_vertex('A', {{'B', 7}, {'C', 8}});
-    g.add_vertex('B', {{'A', 7}, {'F', 2}});
-    g.add_vertex('C', {{'A', 8}, {'F', 6}, {'G', 4}});
-    g.add_vertex('D', {{'F', 8}});
-    g.add_vertex('E', {{'H', 1}});
-    g.add_vertex('F', {{'B', 2}, {'C', 6}, {'D', 8}, {'G', 9}, {'H', 3}});
-    g.add_vertex('G', {{'C', 4}, {'F', 9}});
-    g.add_vertex('H', {{'E', 1}, {'F', 3}});
+    g.add_vertex(31.5, 0);
+    g.add_vertex(31.0, -10);
+    g.add_vertex(-27, -8.36);
+    g.add_vertex(-26, 0.7);
 
-    for (char vertex : g.shortest_path('A', 'E'))
-    {
-        cout << vertex << endl;
+    g.initialize_adj_mat({
+            {0, 1, 0, 1},
+            {1, 0, 1, 0},
+            {0, 1, 0, 1},
+            {1, 0, 1, 0} });
+
+    g.print_graph();
+
+    for (int i = 0; i < g.size; i++) {
+        for (int j = 0; j < g.size; j++) {
+            cout << g.dist_i_j(i, j) << " ";
+        }
+        cout << endl;
     }
 
-
-    return 0;
+    return  0;
 }
+
