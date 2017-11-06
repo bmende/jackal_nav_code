@@ -1,28 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(record_bags_bende)
+project(orb_nav)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  geometry_msgs
   roscpp
   rospy
+  sensor_msgs
   std_msgs
-  cv_bridge
-  message_filters
-  geometry_msgs
+  nav_msgs
 )
-
-find_package(OpenCV 3.0 QUIET)
-if(NOT OpenCV_FOUND)
-   find_package(OpenCV 2.4.3 QUIET)
-   if(NOT OpenCV_FOUND)
-      message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
-   endif()
-endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -81,7 +74,7 @@ endif()
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   geometry_msgs#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -109,14 +102,14 @@ endif()
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
+## INCLUDE_DIRS: uncomment this if your package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES record_bags_bende
-  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+#  LIBRARIES orb_nav
+#  CATKIN_DEPENDS cv_bridge geometry_msgs roscpp rospy sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -127,12 +120,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
+# include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/record_bags_bende.cpp
+#   src/${PROJECT_NAME}/orb_nav.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -143,13 +137,10 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/record_bags_bende_node.cpp)
+add_executable(${PROJECT_NAME}_path_plan src/djikstra.cpp)
 
-add_executable(capture_data_bende src/capture_data.cpp)
-target_link_libraries(capture_data_bende ${catkin_LIBRARIES})
-
-add_executable(orb_naive src/navigate.cpp)
-target_link_libraries(orb_naive ${catkin_LIBRARIES})
+add_executable(${PROJECT_NAME}_sim src/sim_bot.cc)
+target_link_libraries(${PROJECT_NAME}_sim ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -206,7 +197,7 @@ target_link_libraries(orb_naive ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_record_bags_bende.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_orb_nav.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
