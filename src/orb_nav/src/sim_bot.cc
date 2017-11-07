@@ -75,7 +75,7 @@ void update_pose_from_vel(const geometry_msgs::Twist::ConstPtr& msg) {
 
     tf::Quaternion q = tf::createQuaternionFromYaw(sim_bot_pose.theta);
     geometry_msgs::PoseStamped p;
-    p.header.frame_id = "ground";
+    p.header.frame_id = "map";
     p.header.stamp = ros::Time::now();
 
     p.pose.position.x = sim_bot_pose.x;
@@ -92,7 +92,7 @@ void update_pose_from_vel(const geometry_msgs::Twist::ConstPtr& msg) {
     path_so_far.push_back(p);
     nav_msgs::Path disp_path;
     disp_path.poses = path_so_far;
-    disp_path.header.frame_id = "ground";
+    disp_path.header.frame_id = "map";
     disp_path.header.stamp = path_so_far[0].header.stamp;
     sim_bot_path.publish(disp_path);
 }
