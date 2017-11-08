@@ -238,7 +238,7 @@ void GraphMap::print_plan() {
 }
 
 
-int main()
+int test_main()
 {
     GraphMap g("src/orb_nav/src/map_test.txt");
 

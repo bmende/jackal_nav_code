@@ -20,6 +20,7 @@ class GraphMap {
 
 public:
 
+    GraphMap() {};
     GraphMap(string file_name);
 
     void set_start(double x, double y);

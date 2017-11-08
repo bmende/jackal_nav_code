@@ -256,7 +256,7 @@ int main(int argc, char** argv) {
     test_waypoints();
 
     ros::Subscriber sub_safe_drive = nh.subscribe("/bluetooth_teleop/joy", 1, safeNavigate);
-    ros::Subscriber sub_cur_pose = nh.subscribe("/orb_slam2/pose", 1, getCurrentPose);
+    ros::Subscriber sub_cur_pose = nh.subscribe("/vehicle_pose", 1, getCurrentPose);
     vel_pub = nh.advertise<geometry_msgs::Twist>("/jackal_velocity_controller/cmd_vel", 1);
     ros::spin();
     return 0;

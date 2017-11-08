@@ -26,7 +26,7 @@ using std::stringstream;
 using std::string;
 
 // Globals
-string kBagFileDirectory = "/media/jackal_user/UBUNTU/bagfiles/";
+string kBagFileDirectory = "/home/jackal_user/bmende_cal/bags/";
 string kBagNodeNameDirectory = "/home/jackal_user/Jackal/bag_node_name_bmende.txt";
 const int kPrefixLength = 5;
 
