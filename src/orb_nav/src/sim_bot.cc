@@ -17,6 +17,7 @@
 #include "eigen3/Eigen/Geometry"
 
 #include "helpers.h"
+#include "djikstra.h"
 
 using namespace std;
 
