@@ -61,12 +61,13 @@ GraphMap::GraphMap(string file_name) {
 
 void GraphMap::set_start(double x, double y) {
     start = Pose(x, y, 0);
-    vertices[num_vertices-2] = start;
+    int s_ind = num_vertices - 2;
+    vertices[s_ind] = start;
 
     double min_dist = std::numeric_limits<double>::max();
     int min_e1, min_e2;
     for (auto l : edges) {
-        if (l.second.dist_to_point_sq(start) <= min_dist) {
+        if (l.second.dist_to_point_sq(start) <= min_dist && l.first.first != s_ind && l.first.second != s_ind) {
             min_dist = l.second.dist_to_point_sq(start);
             min_e1 = l.first.first;
             min_e2 = l.first.second;
@@ -166,6 +167,7 @@ int GraphMap::min_dist_index(vector<double> dist, vector<bool> sptSet) {
 }
 
 vector< Pose > GraphMap::shortest_path() {
+    plan.clear();
     vector<double> dist(num_vertices, std::numeric_limits<double>::max());
     vector<int> pred(num_vertices, -1);
 

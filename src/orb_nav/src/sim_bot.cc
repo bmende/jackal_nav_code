@@ -152,30 +152,34 @@ pair<double, double> follow_map_plan() {
     vector<Pose> plan = graph_map.shortest_path();
     double distance_to_goal = plan[0].dist(sim_bot_pose);
     double heading = sim_bot_pose.heading_diff_to_pose(goal);
-    cout << "i am " << distance_to_goal << ", " << heading << " away from the goal!\n";
+    cout << "i am " << distance_to_goal << ", " << (180*heading/PI) << " away from the next waypoint!\n";
+    cout << plan[0] << endl;
 
-    if (distance_to_goal < 0.25) {
+
+    if (distance_to_goal < 0.5 || at_goal) {
+        at_goal = true;
         cout << "I am close enough\n";
         return make_pair(0, 0);
     }
 
-    bool spin_or_go = false;
     double for_vel = 0, turn_vel = 0;
-    if (abs(heading) < 0.06) {
+    if (abs(180*heading/PI) < 4.0) {
         cout << "forward!\n";
         for_vel = min(1.0, distance_to_goal);
     } else if (heading < 0) {
         cout << "left!\n";
-        turn_vel = -0.6;
+        for_vel = 0.1;
+        turn_vel = -0.25;
     } else if (heading > 0) {
         cout << "right!\n";
-        turn_vel = 0.6;
+        for_vel = 0.1;
+        turn_vel = 0.25;
     }
 
     return make_pair(for_vel, turn_vel);
 }
 
-void safeNav(const sensor_msgs::JoyConstPtr& msg) {
+void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
     int R2 = msg->buttons[9];
     int R1 = msg->buttons[11];
     int X = msg->buttons[14];
@@ -185,10 +189,16 @@ void safeNav(const sensor_msgs::JoyConstPtr& msg) {
     pair<double, double> desired_vel;
     if (triangle) {
         desired_vel = follow_map_plan();
-        geometry_msgs::Twist vel_msg;
-        vel_msg.linear.x = desired_vel.first;
-        vel_msg.angular.z = desired_vel.second;
-        vel_pub.publish(vel_msg);
+        if (!at_goal) {
+            geometry_msgs::Twist vel_msg;
+            vel_msg.linear.x = desired_vel.first;
+            vel_msg.angular.z = desired_vel.second;
+            vel_pub.publish(vel_msg);
+        }
+    } else if (O) {
+        graph_map.print_graph();
+        graph_map.print_plan();
+        at_goal = false;
     }
 
 }
@@ -196,9 +206,10 @@ void safeNav(const sensor_msgs::JoyConstPtr& msg) {
 void initialize_map() {
 
     graph_map = GraphMap("src/orb_nav/src/map_test.txt");
-    graph_map.set_goal(31, -5);
+    graph_map.set_goal(22.0, -0.2);
 
     graph_map.print_graph();
+    at_goal = false;
 
 }
 
@@ -213,22 +224,22 @@ int main(int argc, char** argv) {
     initialize_map();
 
     ros::Subscriber inital_pose = nh.subscribe("/initialpose", 1, set_starting_pose);
-    ros::Subscriber current_pose = nh.subscribe("/orb_slam2/pose", 1, set_current_pose);
+    ros::Subscriber current_pose = nh.subscribe("/vehicle_pose", 1, set_current_pose);
     ros::Subscriber goal_pose = nh.subscribe("/move_base_simple/goal", 1, set_goal_pose);
 //    ros::Subscriber velocity_update = nh.subscribe("/jackal_velocity_controller/cmd_vel", 1, update_pose_from_vel);
-    ros::Subscriber safeDriving = nh.subscribe("/bluetooth_teleop/joy", 1, safeNav);
+    ros::Subscriber safeDriving = nh.subscribe("/bluetooth_teleop/joy", 1, unSafeNav);
 
     cur_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("orb_slam2/pose", 1);
     vel_pub = nh.advertise<geometry_msgs::Twist>("/jackal_velocity_controller/cmd_vel", 1);
     sim_bot_path = nh.advertise<nav_msgs::Path>("vehicle_path", 1);
 
-    ros::spin();
-//     ros::Rate r(10);
-//     while (ros::ok()) {
-//         ros::spinOnce();
-// //        go_to_goal();
-//         r.sleep();
-//     }
+    //ros::spin();
+    ros::Rate r(10);
+    while (ros::ok()) {
+        ros::spinOnce();
+//        go_to_goal();
+        r.sleep();
+    }
 
     return 0;
 
