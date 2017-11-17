@@ -67,7 +67,8 @@ void GraphMap::set_start(double x, double y) {
     double min_dist = std::numeric_limits<double>::max();
     int min_e1, min_e2;
     for (auto l : edges) {
-        if (l.second.dist_to_point_sq(start) <= min_dist && l.first.first != s_ind && l.first.second != s_ind) {
+        if (l.second.dist_to_point_sq(start) <= min_dist &&
+            l.first.first != s_ind && l.first.second != s_ind) {
             min_dist = l.second.dist_to_point_sq(start);
             min_e1 = l.first.first;
             min_e2 = l.first.second;

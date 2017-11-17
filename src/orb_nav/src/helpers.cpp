@@ -25,7 +25,7 @@ Pose::Pose(const Pose& _p):
 
 double Pose::heading_diff_to_pose(Pose p) {
     Eigen::Vector2d heading = Eigen::Vector2d(cos(theta), sin(theta));
-    Eigen::Vector2d go_to_p = Eigen::Vector2d(x - p.x, y - p.y).normalized();
+    Eigen::Vector2d go_to_p = Eigen::Vector2d(p.x - x, p.y - y).normalized();
 
     double cross_prod_sign = heading.x()*go_to_p.y() - heading.y()*go_to_p.x();
     if (cross_prod_sign < 0) {

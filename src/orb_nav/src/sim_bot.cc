@@ -28,6 +28,7 @@ vector<geometry_msgs::PoseStamped> path_so_far;
 
 GraphMap graph_map;
 vector<Pose> plan;
+int path_index = 0;
 
 bool at_goal = true;
 
@@ -149,16 +150,15 @@ pair<double, double> go_to_goal() {
 
 
 pair<double, double> follow_map_plan() {
-    vector<Pose> plan = graph_map.shortest_path();
-    double distance_to_goal = plan[0].dist(sim_bot_pose);
-    double heading = sim_bot_pose.heading_diff_to_pose(goal);
+    double distance_to_goal = plan[path_index].dist(sim_bot_pose);
+    double heading = sim_bot_pose.heading_diff_to_pose(plan[path_index]);
     cout << "i am " << distance_to_goal << ", " << (180*heading/PI) << " away from the next waypoint!\n";
-    cout << plan[0] << endl;
+    cout << plan[path_index] << endl;
 
 
-    if (distance_to_goal < 0.5 || at_goal) {
-        at_goal = true;
+    if (distance_to_goal < 0.5) {
         cout << "I am close enough\n";
+        path_index++;
         return make_pair(0, 0);
     }
 
@@ -188,17 +188,23 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
 
     pair<double, double> desired_vel;
     if (triangle) {
-        desired_vel = follow_map_plan();
-        if (!at_goal) {
+        if (path_index < plan.size()) {
+            desired_vel = follow_map_plan();
             geometry_msgs::Twist vel_msg;
             vel_msg.linear.x = desired_vel.first;
             vel_msg.angular.z = desired_vel.second;
             vel_pub.publish(vel_msg);
+        } else {
+            cout << "Finally at the goal! Press X to reset!\n";
         }
     } else if (O) {
         graph_map.print_graph();
         graph_map.print_plan();
         at_goal = false;
+    } else if (X) {
+        cout << "replanning\n";
+        plan = graph_map.shortest_path();
+        path_index = 0;
     }
 
 }
@@ -206,7 +212,7 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
 void initialize_map() {
 
     graph_map = GraphMap("src/orb_nav/src/map_test.txt");
-    graph_map.set_goal(22.0, -0.2);
+    graph_map.set_goal(31.0, -5.1);
 
     graph_map.print_graph();
     at_goal = false;
