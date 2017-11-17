@@ -165,14 +165,14 @@ pair<double, double> follow_map_plan() {
     double for_vel = 0, turn_vel = 0;
     if (abs(180*heading/PI) < 4.0) {
         cout << "forward!\n";
-        for_vel = min(1.0, distance_to_goal);
+        for_vel = 0.5;
     } else if (heading < 0) {
         cout << "left!\n";
-        for_vel = 0.1;
+        for_vel = 0.07;
         turn_vel = -0.25;
     } else if (heading > 0) {
         cout << "right!\n";
-        for_vel = 0.1;
+        for_vel = 0.07;
         turn_vel = 0.25;
     }
 
@@ -212,7 +212,7 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
 void initialize_map() {
 
     graph_map = GraphMap("src/orb_nav/src/map_test.txt");
-    graph_map.set_goal(31.0, -5.1);
+    graph_map.set_goal(11.0, -9.9);
 
     graph_map.print_graph();
     at_goal = false;

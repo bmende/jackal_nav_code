@@ -76,12 +76,12 @@ void GraphMap::set_start(double x, double y) {
     }
     for (int i = 0; i < num_vertices; i++) {
         if (i == min_e1 || i == min_e2) {
-            adjacency_mat[num_vertices-2][i] = 1;
+            adjacency_mat[s_ind][i] = 1;
             adjacency_mat[i][num_vertices-2] = 1;
         }
         else {
-            adjacency_mat[i][num_vertices-2] = 0;
-            adjacency_mat[num_vertices-2][i] = 0;
+            adjacency_mat[i][s_ind] = 0;
+            adjacency_mat[s_ind][i] = 0;
         }
     }
     set_edges();
@@ -89,12 +89,14 @@ void GraphMap::set_start(double x, double y) {
 
 void GraphMap::set_goal(double x, double y) {
     goal = Pose(x, y, 0);
-    vertices[num_vertices-1] = goal;
+    int g_ind = num_vertices - 1;
+    vertices[g_ind] = goal;
 
     double min_dist = std::numeric_limits<double>::max();
     int min_e1, min_e2;
     for (auto l : edges) {
-        if (l.second.dist_to_point_sq(goal) <= min_dist) {
+        if (l.second.dist_to_point_sq(goal) <= min_dist &&
+            l.first.first != g_ind && l.first.second != g_ind) {
             min_dist = l.second.dist_to_point_sq(goal);
             min_e1 = l.first.first;
             min_e2 = l.first.second;
@@ -102,12 +104,12 @@ void GraphMap::set_goal(double x, double y) {
     }
     for (int i = 0; i < num_vertices; i++) {
         if (i == min_e1 || i == min_e2) {
-            adjacency_mat[num_vertices-1][i] = 1;
-            adjacency_mat[i][num_vertices-1] = 1;
+            adjacency_mat[g_ind][i] = 1;
+            adjacency_mat[i][g_ind] = 1;
         }
         else {
-            adjacency_mat[i][num_vertices-1] = 0;
-            adjacency_mat[num_vertices-1][i] = 0;
+            adjacency_mat[i][g_ind] = 0;
+            adjacency_mat[g_ind][i] = 0;
         }
     }
     set_edges();
