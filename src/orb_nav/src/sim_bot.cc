@@ -211,8 +211,8 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
 
 void initialize_map() {
 
-    graph_map = GraphMap("src/orb_nav/src/map_test.txt");
-    graph_map.set_goal(11.0, -9.9);
+    graph_map = GraphMap("src/orb_nav/src/eng_map.txt");
+    graph_map.set_goal(30.2, 14.6);
 
     graph_map.print_graph();
     at_goal = false;
