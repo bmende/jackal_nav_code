@@ -12,6 +12,8 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <nav_msgs/Path.h>
 #include <tf/transform_datatypes.h>
+#include <std_msgs/Bool.h>
+#include "orb_nav/orb_nav_goal.h"
 
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
@@ -24,6 +26,7 @@ using namespace std;
 ros::Publisher cur_pose_pub, sim_bot_path, vel_pub;
 
 Pose sim_bot_pose, goal;
+bool tracking_state = false;
 vector<geometry_msgs::PoseStamped> path_so_far;
 
 GraphMap graph_map;
@@ -58,6 +61,10 @@ void set_starting_pose(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr&
     graph_map.set_start(sim_bot_pose.x, sim_bot_pose.x);
 }
 
+void set_track_state(const std_msgs::Bool::ConstPtr& msg) {
+    tracking_state = msg->data;
+}
+
 void set_current_pose(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     sim_bot_pose.x = msg->pose.position.x;
     sim_bot_pose.y = msg->pose.position.y;
@@ -74,6 +81,12 @@ void set_current_pose(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     sim_bot_pose.theta = yaw;
 
     cout << "current pose: " << sim_bot_pose << endl;
+    orb_nav::orb_nav_goal cur_pose_msg;
+    cur_pose_msg.x = sim_bot_pose.x;
+    cur_pose_msg.y = sim_bot_pose.y;
+    cur_pose_msg.theta = sim_bot_pose.theta;
+    cur_pose_msg.state = tracking_state;
+    cur_pose_pub.publish(cur_pose_msg);
     graph_map.set_start(sim_bot_pose.x, sim_bot_pose.y);
 }
 
@@ -81,6 +94,20 @@ void set_current_pose(const geometry_msgs::PoseStamped::ConstPtr& msg) {
 void set_goal_pose_rviz(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     goal.x = msg->pose.position.x;
     goal.y = msg->pose.position.y;
+
+    cout << "got goal: " << goal << endl;
+
+    double distance_to_goal = goal.dist(sim_bot_pose);
+    cout << "i am " << distance_to_goal << " away from the goal!\n";
+    graph_map.set_goal(goal.x, goal.x);
+
+    plan = graph_map.shortest_path();
+
+}
+
+void set_goal_pose(const orb_nav::orb_nav_goal::ConstPtr& msg) {
+    goal.x = msg->x;
+    goal.y = msg->y;
 
     cout << "got goal: " << goal << endl;
 
@@ -231,11 +258,13 @@ int main(int argc, char** argv) {
 
     ros::Subscriber inital_pose = nh.subscribe("/initialpose", 1, set_starting_pose);
     ros::Subscriber current_pose = nh.subscribe("/vehicle_pose", 1, set_current_pose);
+    ros::Subscriber track_state = nh.subscribe("/orb_slam2_status", 1, set_track_state);
     ros::Subscriber goal_pose_rviz = nh.subscribe("/move_base_simple/goal", 1, set_goal_pose_rviz);
+    ros::Subscriber goal_pose = nh.subscribe("/orb_nav/goal/", 1, set_goal_pose);
 //    ros::Subscriber velocity_update = nh.subscribe("/jackal_velocity_controller/cmd_vel", 1, update_pose_from_vel);
     ros::Subscriber unSafeDriving = nh.subscribe("/bluetooth_teleop/joy", 1, unSafeNav);
 
-    cur_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("orb_slam2/pose", 1);
+    cur_pose_pub = nh.advertise<orb_nav::orb_nav_goal>("orb_slam2/pose", 1);
     vel_pub = nh.advertise<geometry_msgs::Twist>("/jackal_velocity_controller/cmd_vel", 1);
     sim_bot_path = nh.advertise<nav_msgs::Path>("vehicle_path", 1);
 
