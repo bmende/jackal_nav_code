@@ -13,7 +13,8 @@
 #include <nav_msgs/Path.h>
 #include <tf/transform_datatypes.h>
 #include <std_msgs/Bool.h>
-#include "orb_nav/orb_nav_goal.h"
+#include "orb_nav/NavGoal.h"
+#include "orb_nav/OrbPose.h"
 
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
@@ -81,7 +82,7 @@ void set_current_pose(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     sim_bot_pose.theta = yaw;
 
     cout << "current pose: " << sim_bot_pose << endl;
-    orb_nav::orb_nav_goal cur_pose_msg;
+    orb_nav::OrbPose cur_pose_msg;
     cur_pose_msg.x = sim_bot_pose.x;
     cur_pose_msg.y = sim_bot_pose.y;
     cur_pose_msg.theta = sim_bot_pose.theta;
@@ -105,7 +106,7 @@ void set_goal_pose_rviz(const geometry_msgs::PoseStamped::ConstPtr& msg) {
 
 }
 
-void set_goal_pose(const orb_nav::orb_nav_goal::ConstPtr& msg) {
+void set_goal_pose(const orb_nav::NavGoal::ConstPtr& msg) {
     goal.x = msg->x;
     goal.y = msg->y;
 
@@ -264,7 +265,7 @@ int main(int argc, char** argv) {
 //    ros::Subscriber velocity_update = nh.subscribe("/jackal_velocity_controller/cmd_vel", 1, update_pose_from_vel);
     ros::Subscriber unSafeDriving = nh.subscribe("/bluetooth_teleop/joy", 1, unSafeNav);
 
-    cur_pose_pub = nh.advertise<orb_nav::orb_nav_goal>("orb_slam2/pose", 1);
+    cur_pose_pub = nh.advertise<orb_nav::OrbPose>("orb_slam2/pose", 1);
     vel_pub = nh.advertise<geometry_msgs::Twist>("/jackal_velocity_controller/cmd_vel", 1);
     sim_bot_path = nh.advertise<nav_msgs::Path>("vehicle_path", 1);
 
