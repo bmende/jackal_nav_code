@@ -221,10 +221,10 @@ void read_waypoints(char* filename) {
 void test_waypoints() {
 
     Pose w1, w2, w3, w4, w5;
-    w1.x = 0.1; w1.y = 0.1; w1.theta = 0.;
-    w2.x = 6.; w2.y = 0.1; w2.theta = 0.;
-    w3.x = 12.; w3.y = 0.1; w3.theta = 0.;
-    w4.x = 28.5; w4.y = 0.1; w4.theta = 0.;
+    w1.x = 0.1; w1.y = -0.1; w1.theta = 0.;
+    w2.x = 6.; w2.y = -0.1; w2.theta = 0.;
+    w3.x = 12.; w3.y = -0.1; w3.theta = 0.;
+    w4.x = 28.5; w4.y = -0.1; w4.theta = 0.;
     w5.x = 28.5; w5.y = -10.1; w5.theta = 0.;
     path.push_back(w2);
     path.push_back(w3);

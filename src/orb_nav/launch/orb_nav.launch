@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="orb_nav" name="orb_nav_sim" respawn="true" type="orb_nav_sim"/>
+</launch>

@@ -26,7 +26,7 @@ using std::stringstream;
 using std::string;
 
 // Globals
-string kBagFileDirectory = "/home/jackal_user/bmende_cal/bags/";
+string kBagFileDirectory = "/media/jackal_user/UBUNTU/point_grey_bags/";
 string kBagNodeNameDirectory = "/home/jackal_user/Jackal/bag_node_name_bmende.txt";
 const int kPrefixLength = 5;
 
@@ -226,11 +226,8 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 
         recording_command << "rosbag record -o " << kBagFileDirectory.c_str() <<
             bag_file_name.c_str() <<
-            " /webcam/left/camera_info /webcam/right/camera_info "
-            " /webcam/left/image_raw/compressed/parameter_descriptions  /webcam/left/image_raw/compressed/parameter_updates "
-            " /webcam/right/image_raw/compressed/parameter_descriptions  /webcam/right/image_raw/compressed/parameter_updates "
-            " /webcam/left/image_raw/compressed "
-            " /webcam/right/image_raw/compressed ";
+            " /camera_left/image_raw/compressed "
+            " /camera_right/image_raw/compressed ";
 
         // Before starting recording, moves the Jackal to signal the start (rotates
         // to the right)

@@ -77,7 +77,7 @@ void GraphMap::set_start(double x, double y) {
     for (int i = 0; i < num_vertices; i++) {
         if (i == min_e1 || i == min_e2) {
             adjacency_mat[s_ind][i] = 1;
-            adjacency_mat[i][num_vertices-2] = 1;
+            adjacency_mat[i][s_ind] = 1;
         }
         else {
             adjacency_mat[i][s_ind] = 0;
