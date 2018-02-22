@@ -195,7 +195,7 @@ pair<double, double> follow_map_plan() {
     double for_vel = 0, turn_vel = 0;
     if (abs(180*heading/PI) < 4.0) {
         cout << "forward!\n";
-        for_vel = 0.5;
+        for_vel = 0.75;
     } else if (heading < 0) {
         cout << "left!\n";
         for_vel = 0.07;
@@ -229,32 +229,33 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
     int X = msg->buttons[14];
     int O = msg->buttons[13];
     int triangle = msg->buttons[12];
+    int square = msg->buttons[15];
 
     pair<double, double> desired_vel;
-    // if (triangle) {
-    //     if (path_index < plan.size()) {
-    //         desired_vel = follow_map_plan();
-    //         geometry_msgs::Twist vel_msg;
-    //         vel_msg.linear.x = desired_vel.first;
-    //         vel_msg.angular.z = desired_vel.second;
-    //         vel_pub.publish(vel_msg);
-    //     } else {
-    //         cout << "Finally at the goal! Press X to reset!\n";
-//         }
-//
+
     if (triangle) {
         cout << path_index << "Triangle Pressed\n";
         Pose next_waypoint = get_next_waypoint();
         cout << next_waypoint.x - sim_bot_pose.x << ", " << next_waypoint.y - sim_bot_pose.y << endl;
         geometry_msgs::Pose rel_pose;
         rel_pose.position.x = next_waypoint.x - sim_bot_pose.x;
-        rel_pose.position.y = 0.0;//next_waypoint.y - sim_bot_pose.y;
+        rel_pose.position.y = next_waypoint.y - sim_bot_pose.y;
         rel_pose.position.z = 0;
         rel_pose.orientation.w = 1;
         rel_pose.orientation.x = 0;
         rel_pose.orientation.y = 0;
         rel_pose.orientation.z = 0;
         waypoint_pub.publish(rel_pose);
+    } else if (square) {
+        if (path_index < plan.size()) {
+            desired_vel = follow_map_plan();
+            geometry_msgs::Twist vel_msg;
+            vel_msg.linear.x = desired_vel.first;
+            vel_msg.angular.z = desired_vel.second;
+            vel_pub.publish(vel_msg);
+        } else {
+            cout << "Finally at the goal! Press X to reset!\n";
+        }
     } else if (O) {
         cout << "O pressed\n";
         graph_map.print_graph();
@@ -271,12 +272,13 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
 void initialize_map() {
 
     graph_map = GraphMap("src/orb_nav/src/map_test.txt");
-    graph_map.set_start(0.0, 0.0);
+    graph_map.set_start(0.0, -0.5);
     graph_map.set_goal(10, -0.5);
 
     plan = graph_map.shortest_path();
     path_index = 0;
     graph_map.print_graph();
+    graph_map.print_plan();
     at_goal = false;
 
 }
