@@ -238,8 +238,10 @@ void unSafeNav(const sensor_msgs::JoyConstPtr& msg) {
         Pose next_waypoint = get_next_waypoint();
         cout << next_waypoint.x - sim_bot_pose.x << ", " << next_waypoint.y - sim_bot_pose.y << endl;
         geometry_msgs::Pose rel_pose;
-        rel_pose.position.x = next_waypoint.x - sim_bot_pose.x;
-        rel_pose.position.y = next_waypoint.y - sim_bot_pose.y;
+        double trans_x = next_waypoint.x - sim_bot_pose.x;
+        double trans_y = next_waypoint.y - sim_bot_pose.y;
+        rel_pose.position.x = cos(next_waypoint.theta)*trans_x - sin(next_waypoint.theta)*trans_y;
+        rel_pose.position.y = cos(next_waypoint.theta)*trans_y + sin(next_waypoint.theta)*trans_x;
         rel_pose.position.z = 0;
         rel_pose.orientation.w = 1;
         rel_pose.orientation.x = 0;
